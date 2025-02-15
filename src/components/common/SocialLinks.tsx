@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { theme } from "../../styles/theme";
 
-const SocialContainer = styled.div`
+export const SocialContainer = styled.div`
   display: flex;
   gap: ${theme.spacing.sm};
 `;

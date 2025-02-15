@@ -6,14 +6,14 @@ import { AppRoutes } from "./components/common/AppRoutes";
 import { Layout } from "./components/common/Layout";
 
 export default function App() {
-	return (
-		<ThemeProvider theme={theme}>
-			<Router>
-				<GlobalStyle />
-				<Layout>
-					<AppRoutes />
-				</Layout>
-			</Router>
-		</ThemeProvider>
-	);
+  return (
+    <ThemeProvider theme={theme}>
+      <Router>
+        <GlobalStyle />
+        <Layout>
+          <AppRoutes />
+        </Layout>
+      </Router>
+    </ThemeProvider>
+  );
 }

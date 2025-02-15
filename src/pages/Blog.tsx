@@ -18,6 +18,9 @@ const BlogContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   margin-left: 0;
+  ${theme.media.md} {
+    font-size: 0.85rem;
+  }
 `;
 
 const BlogList = styled.ul`
@@ -37,23 +40,24 @@ const BlogItem = styled.li`
 
 const BlogTitle = styled.h1`
   ${theme.media.md} {
-    font-size: 1.8rem;
-    margin-bottom: ${theme.spacing.md};
-    text-align: center;
+    font-size: 1.4rem;
+    margin-bottom: ${theme.spacing.lg};
+    text-align: left;
   }
 `;
 
 const BlogPostTitle = styled.h2`
   ${theme.media.md} {
-    font-size: 1.2rem;
+    font-size: 0.95rem;
     margin-bottom: ${theme.spacing.xs};
+    text-align: left;
   }
 `;
 
 const BlogDate = styled.span`
   ${theme.media.md} {
-    font-size: 0.8rem;
-    opacity: 0.7;
+    font-size: 0.75rem;
+    opacity: 0.6;
   }
 `;
 

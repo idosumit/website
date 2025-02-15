@@ -1,9 +1,9 @@
 import { useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import Header from "../Header";
 import { theme } from "../../styles/theme";
-import { SocialLinks } from "./SocialLinks";
+import { SocialLinks, SocialContainer } from "./SocialLinks";
 import { AnimatePresence } from "framer-motion";
 
 const Main = styled.main<{ isHome: boolean }>`
@@ -41,6 +41,7 @@ const TopBarContainer = styled.div<{ isHome: boolean; visible: boolean }>`
 
   ${theme.media.md} {
     padding: ${theme.spacing.xs} 0;
+    display: none;
   }
 `;
 
@@ -93,12 +94,108 @@ const Footer = styled.footer`
   }
 `;
 
+const MobileNav = styled.div`
+  display: none;
+  
+  ${theme.media.md} {
+    display: block;
+    position: fixed;
+    bottom: ${theme.spacing.lg};
+    right: ${theme.spacing.lg};
+    z-index: 1000;
+  }
+`;
+
+const MobileMenu = styled.div<{ isOpen: boolean }>`
+  display: none;
+  
+  ${theme.media.md} {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: calc(${theme.spacing.xl} + 50px); // Space for the button
+    left: ${theme.spacing.lg};
+    right: ${theme.spacing.lg};
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    padding: ${theme.spacing.lg} ${theme.spacing.md};
+    border-radius: ${theme.spacing.sm};
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    transform: ${props => props.isOpen ? 'translateY(0)' : 'translateY(100%)'};
+    opacity: ${props => props.isOpen ? 1 : 0};
+    pointer-events: ${props => props.isOpen ? 'auto' : 'none'};
+    transition: all 0.3s ease;
+    max-height: 80vh;
+    overflow-y: auto;
+    
+    nav {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      
+      a {
+        padding: ${theme.spacing.sm} ${theme.spacing.md};
+        font-size: 0.9rem;
+        text-align: left;
+        border-bottom: 1px solid ${theme.colors.accent.orange}15;
+        
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+
+    ${SocialContainer} {
+      margin-top: ${theme.spacing.lg};
+      padding: 0 ${theme.spacing.md};
+      justify-content: flex-start;
+      
+      a {
+        opacity: 0.7;
+        
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+`;
+
+const FloatingButton = styled.button<{ isOpen: boolean }>`
+  display: none;
+  
+  ${theme.media.md} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: ${theme.colors.accent.orange};
+    border: none;
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: fixed;
+    bottom: ${theme.spacing.lg};
+    right: ${theme.spacing.lg};
+    z-index: 1001; // Above the menu
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+`;
+
 export const Layout = ({ children }: { children: React.ReactNode }) => {
 	const location = useLocation();
 	const isHome = location.pathname === "/";
 	const [prevScrollPos, setPrevScrollPos] = useState(0);
 	const [visible, setVisible] = useState(true);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const currentYear = new Date().getFullYear();
+	const menuRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		const handleScroll = () => {
@@ -116,6 +213,17 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 		return () => window.removeEventListener("scroll", handleScroll);
 	}, [prevScrollPos]);
 
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+				setIsMenuOpen(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, []);
+
 	return (
 		<>
 			<TopBarContainer isHome={isHome} visible={visible}>
@@ -124,6 +232,26 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 					<SocialLinks />
 				</TopBarContent>
 			</TopBarContainer>
+			
+			{!isHome && (
+				<MobileNav>
+					<FloatingButton 
+						isOpen={isMenuOpen}
+						onClick={() => setIsMenuOpen(!isMenuOpen)}
+						aria-label="Toggle navigation"
+					>
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+							<path d="M6 9l6 6 6-6"/>
+						</svg>
+					</FloatingButton>
+					
+					<MobileMenu ref={menuRef} isOpen={isMenuOpen}>
+						<Header />
+						<SocialLinks />
+					</MobileMenu>
+				</MobileNav>
+			)}
+			
 			<Main isHome={isHome}>
 				<Content isHome={isHome}>
 					<AnimatePresence mode="wait">{children}</AnimatePresence>
